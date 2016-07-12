@@ -7,10 +7,12 @@ using namespace std;
 
 const unsigned float FOCAL_LENGTH = 100; // mm 
 const unsigned float SENSOR_HEIGHT = 100; // mm
-const unsigned float TARGET_AREA_THRESHOLD = 100;	 
-const uint8_t ALLOWABLE_READS = 3;
+const unsigned float SENSOR_WIDTH = 100; // mm 
+const unsigned float TARGET_AREA_THRESHOLD = 100; // pix^2	
 const uint16_t IMAGE_WIDTH = 1000; // pix
 const uint16_t IMAGE_HEIGHT = 1000; // pix
+const uint8_t ALLOWABLE_READS = 3;
+
 
 // These are the HSV ranges we need to tune in order to find the colour
 // of the pants
@@ -27,14 +29,24 @@ int send_error( string message ){
 	return -1;
 }
 
+// Check to see if we need to take a picture
 bool take_picture(){
 	// ... some code to recieve signal that tells use if we need to take picture
 	// for processing 
 }
 
+// Get the laser height from the uav
+float get_height(){
+	// ... som code to get height from the controller 
+}
+
+void send_target_coordinates( int x, int y ){
+	// .. some code to send the target coordinates to the controller
+}
+
 // Used to transform the x-y coordinates such that the origin is in the centre of the image
 // rather then top left
-int centre_origin( int &x, int &y ){
+void centre_origin( int &x, int &y ){
 	x -= IMAGE_WIDTH;
 	y += IMAGE_HEIGHT; 
 }
@@ -86,3 +98,15 @@ int main(){
 
 				centre_origin( target_x, target_y );
 
+				unsigned float UAV_height = get_height();
+
+				target_ground_distance_x = UAV_height * ( ( ( SENSOR_WIDTH / IMAGE_WIDTH ) * target_x ) / FOCAL_LENGTH );
+				target_ground_distance_y = UAV_height * ( ( ( SENSOR_HEIGHT / IMAGE_HEIGHT ) * target_y ) / FOCAL_LENGTH ); 
+
+				send_target_coordinates( target_ground_distance_x, target_ground_distance_y );
+			}
+		}
+	}
+
+	return 0;
+}
