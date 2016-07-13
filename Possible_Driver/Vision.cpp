@@ -9,8 +9,6 @@ const unsigned float FOCAL_LENGTH = 100; // mm
 const unsigned float SENSOR_HEIGHT = 100; // mm
 const unsigned float SENSOR_WIDTH = 100; // mm 
 const unsigned float TARGET_AREA_THRESHOLD = 100; // pix^2	
-const uint16_t IMAGE_WIDTH = 1000; // pix
-const uint16_t IMAGE_HEIGHT = 1000; // pix
 const uint8_t ALLOWABLE_READS = 3;
 
 
