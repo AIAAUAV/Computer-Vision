@@ -2,14 +2,23 @@
 
 using namespace std;
 
-Communication_Manager::Communications_Manager(){
+short int Communications_Manager::send_error( std::string message ){
 
 }
 
-Communications_Manager::~Communications_Manager(){
+Recieve_Type Communications_Manager::get_recieve_type(){
 
 }
 
-short int Communications_Manager::send_error( string message ){
+int Communications_Manager::get_message(){
 
 }
+
+void Communications_Manager::set_send_type( Send_Type type ){
+
+}
+
+void Communications_Manager::send( int data ){
+	
+}
+

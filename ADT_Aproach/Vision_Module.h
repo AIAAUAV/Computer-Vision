@@ -3,6 +3,12 @@
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include "Communications_Manager.h"
+
+enum Vision_Command {
+	GET_FRAME,
+	FIND_TARGET
+};
 
 struct Coordinate_Vector {
 	int x, y;
@@ -25,7 +31,8 @@ public:
 		unsigned float SENSOR_HEIGHT,
 		unsigned float SENSOR_WIDTH,
 		unsigned float AREA_THRESHOLD,
-		uint8_t ALLOWABLE_GET_FRAME_ATTEMPTS 
+		uint8_t ALLOWABLE_GET_FRAME_ATTEMPTS,
+		Communications_Manager* coms_address
 	);
 
 	~Vision_Module();

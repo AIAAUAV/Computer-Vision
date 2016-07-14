@@ -5,16 +5,19 @@ Vision_Module::Vision_Module(
 	unsigned float SENSOR_HEIGHT,
 	unsigned float SENSOR_WIDTH,
 	unsigned float AREA_THRESHOLD,
-	uint8_t ALLOWABLE_GET_FRAME_ATTEMPTS 
-):
+	uint8_t ALLOWABLE_GET_FRAME_ATTEMPTS,
+	Communications_Manager* coms_address
+): // Initialise everything 
 	FOCAL_LENGTH( FOCAL_LENGTH ),
 	SENSOR_HEIGHT( SENSOR_HEIGHT ),
 	SENSOR_WIDTH( SENSOR_WIDTH ),
 	AREA_THRESHOLD( AREA_THRESHOLD ),
-	ALLOWABLE_GET_*frame_ATTEMPTS( ALLOWABLE_GET_*frame_ATTEMPTS )
+	ALLOWABLE_GET_FRAME_ATTEMPTS( ALLOWABLE_GET_*frame_ATTEMPTS ),
+	coms( coms_address )
 {}
 
 bool Vision_Module::initialize( unsigned int camera_number ){
+	// Assign a new video capture object 
 	feed = new VideoCapture( camera_number );
 
 	// Perform a check to see if the feed is opened, otherwise we can't fly 
@@ -33,6 +36,8 @@ bool Vision_Module::find_target( Target* target ){
 
 	float target_area = moments.m00;
 
+	// The area we have needs to be bigger than the threshold, otherwise
+	// we haven't actually found anything
 	if( target_area > TARGET_AREA_THRESHOLD )
 		return true;
 
@@ -67,17 +72,24 @@ Coordinate_Vector Vision_Module::get_target_position(){
 
 	float target_area = moments.m00;
 
+	// create a vector that will hold the position of the target from the uav
 	Coordinate_Vector coordinates;
 	coordinates.x = 0;
 	coordinates.y = 0;
 
+	// we have to calculate the pixel position from the moments 
 	int target_x = moments.m10 / target_area;
 	int target_y = moments.m01 / target_area; 
 
+	// Now perform a translation so that we have a center origin instead 
+	// of one in the top left corner of the view port 
 	centre_origin( target_x, target_y );
 
+	// To perform the calculations to find the actual distance fomr the uav, we need to get
+	// the vertical distance from the plane on which the target it on 
 	unsigned float UAV_height = coms.recieve( LASER_ALTITUDE );
 
+	// Using equations for horizontal distances 
 	coordinates.x = UAV_height * ( ( ( SENSOR_WIDTH / IMAGE_WIDTH ) * target_x ) / FOCAL_LENGTH );
 	coordinates.y = UAV_height * ( ( ( SENSOR_HEIGHT / IMAGE_HEIGHT ) * target_y ) / FOCAL_LENGTH ); 
 
@@ -93,20 +105,27 @@ Coordinate_Vector Vision_Module::get_target_position( Target* target ){
 
 	float target_area = moments.m00;
 
+	// create a vector that will hold the position of the target from the uav
 	Coordinate_Vector coordinates;
 	coordinates.x = 0;
 	coordinates.y = 0;
 
 	if( target_area > TARGET_AREA_THRESHOLD )
-		int target_x = moments.m10 / target_area;
-		int target_y = moments.m01 / target_area; 
+		// we have to calculate the pixel position from the moments 
+	int target_x = moments.m10 / target_area;
+	int target_y = moments.m01 / target_area; 
 
-		centre_origin( target_x, target_y );
+	// Now perform a translation so that we have a center origin instead 
+	// of one in the top left corner of the view port 
+	centre_origin( target_x, target_y );
 
-		unsigned float UAV_height = get_height();
+	// To perform the calculations to find the actual distance fomr the uav, we need to get
+	// the vertical distance from the plane on which the target it on 
+	unsigned float UAV_height = coms.recieve( LASER_ALTITUDE );
 
-		coordinates.x = UAV_height * ( ( ( SENSOR_WIDTH / IMAGE_WIDTH ) * target_x ) / FOCAL_LENGTH );
-		coordinates.y = UAV_height * ( ( ( SENSOR_HEIGHT / IMAGE_HEIGHT ) * target_y ) / FOCAL_LENGTH ); 
+	// Using equations for horizontal distances 
+	coordinates.x = UAV_height * ( ( ( SENSOR_WIDTH / IMAGE_WIDTH ) * target_x ) / FOCAL_LENGTH );
+	coordinates.y = UAV_height * ( ( ( SENSOR_HEIGHT / IMAGE_HEIGHT ) * target_y ) / FOCAL_LENGTH ); 
 	}
 }
 
